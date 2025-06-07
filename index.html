@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScanPay</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+      /* Variables */
+      :root {
+        --bg: #ffffff;
+        --text: #111;
+        --container-bg: #f9f9f9;
+        --border: #ddd;
+        --accent: #0070f3;
+        --btn-bg: #0070f3;
+        --btn-hover: #005bb5;
+        --link: #0066cc;
+        --link-hover: #004a99;
+        --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #121212;
+          --text: #e0e0e0;
+          --container-bg: #1e1e1e;
+          --border: #333;
+          --accent: #4899f1;
+          --btn-bg: #4899f1;
+          --btn-hover: #3578c6;
+          --link: #58a6ff;
+          --link-hover: #1f6feb;
+        }
+      }
+
+      /* Base Styles */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        transition: background 0.3s, color 0.3s;
+        text-align: center;
+      }
+
+      .container {
+        background: var(--container-bg);
+        max-width: 400px;
+        margin: auto;
+        padding: 2rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        margin-top: 0;
+      }
+
+      #reader {
+        width: 100%;
+        max-width: 350px;
+        margin: 1rem auto;
+        margin-bottom: 2rem;
+        background: var(--container-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+
+      #reader video {
+        border-radius: 6px;
+      }
+
+      label {
+        display: block;
+        margin: 1rem 0 0.5rem;
+        font-weight: 500;
+        text-align: left;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 1rem;
+        transition: border-color 0.2s;
+      }
+      input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      button {
+        margin-top: 1.5rem;
+        padding: 0.75rem;
+        font-size: 1rem;
+        color: #fff;
+        background: var(--btn-bg);
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s;
+        width: 100%;
+      }
+      button:hover {
+        background: var(--btn-hover);
+      }
+
+      span.helper-text {
+        display: block;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+      span.helper-text a {
+        color: var(--link);
+        text-decoration: underline;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+      span.helper-text a:hover {
+        color: var(--link-hover);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>ScanPay</h2>
+      <div id="reader"></div>
+
+      <form onsubmit="makePayment()">
+        <label for="upiId">UPI ID</label>
+        <input id="upiId" placeholder="someone@upi" required />
+
+        <label for="amount">Amount</label>
+        <input type="number" id="amount" placeholder="100" required min="1" />
+
+        <label for="note">Note</label>
+        <input id="note" placeholder="Lunch, groceries..." required />
+
+        <button type="submit">Continue</button>
+      </form>
+
+      <span class="helper-text">
+        Facing any issues? <a onclick="startQrScanner()">Retry</a>
+      </span>
+    </div>
+
+    <script>
+      const qrScanner = new Html5Qrcode("reader");
+
+      const cameraConfig = { facingMode: "environment" };
+      const scanRegionConfig = {
+        fps: 10,
+        qrbox: 200,
+      };
+
+      function parseUpiIdFromQr(text) {
+        const upiIdMatch = text.match(/upi:\/\/pay\?pa=([^&]+)/i);
+        if (upiIdMatch) {
+          document.getElementById("upiId").value = decodeURIComponent(
+            upiIdMatch[1]
+          );
+        }
+      }
+
+      function startQrScanner() {
+        qrScanner
+          .start(
+            cameraConfig,
+            scanRegionConfig,
+            (qrCodeMessage) => {
+              qrScanner.stop().then(() => {
+                parseUpiIdFromQr(qrCodeMessage);
+              });
+            },
+            (error) => {
+              console.log("Scan error", error);
+            }
+          )
+          .catch((err) => {
+            document.getElementById("reader").innerHTML = `
+            <p style="color: red;">${err}</p>
+          `;
+          });
+      }
+
+      function makePayment() {
+        const upiId = document.getElementById("upiId").value.trim();
+        const amount = document.getElementById("amount").value.trim();
+        const note = document.getElementById("note").value.trim();
+
+        if (!upiId || !amount || !note) {
+          alert("Please fill all the fields !");
+          return;
+        }
+
+        const upiUrl = `upi://pay?pa=${encodeURIComponent(
+          upiId
+        )}&am=${encodeURIComponent(amount)}&cu=INR&tn=${encodeURIComponent(
+          note
+        )}`;
+
+        window.location.href = upiUrl;
+      }
+
+      // Start scanning on load
+      startQrScanner();
+    </script>
+  </body>
+</html>
