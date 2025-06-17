@@ -99,7 +99,6 @@ input:focus {
 }
 
 button {
-  margin-top: 1.5rem;
   padding: 0.75rem;
   font-size: 1rem;
   color: #ffffff;
@@ -159,4 +158,35 @@ body.dark #toggle-theme::before {
 
 body.dev #toggle-dev {
   background-color: yellowgreen;
+}
+
+.hr-text {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+  outline: 0;
+  border: 0;
+  color: var(--text);
+  text-align: center;
+  opacity: .5;
+
+  &:before {
+    content: '';
+    background: linear-gradient(to right, transparent, #818078, transparent);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+  }
+
+  &:after {
+    content: attr(data-content);
+    position: relative;
+    display: inline-block;
+    padding: 0 .5em;
+    line-height: 1.5em;
+    background: var(--container-bg);
+    cursor: pointer;
+  }
 }
