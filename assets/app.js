@@ -84,34 +84,47 @@ function makePayment(event) {
 // Start scanning on load
 startQrScanner();
 
-const themeSwitcher = document.getElementById("themeSwitcher");
-const devModeToggle = document.getElementById("devMode");
-
-// Load stored preferences
-if (localStorage.getItem("theme")) {
-  document.body.classList.add(localStorage.getItem("theme"));
-  themeSwitcher.checked = localStorage.getItem("theme") === "dark";
-}
-
-if (localStorage.getItem("devMode") === "true") {
-  devModeToggle.checked = true;
-  console.log("Developer mode enabled");
-}
-
-// Theme switch logic
-themeSwitcher.addEventListener("change", () => {
-  const theme = themeSwitcher.checked ? "dark" : "light";
-  document.body.classList.remove("dark", "light");
+// Set Theme by toggling a class on <body> and saving preference
+function setTheme(theme) {
+  document.body.classList.remove('light', 'dark');
   document.body.classList.add(theme);
-  localStorage.setItem("theme", theme);
-});
+  localStorage.setItem('theme', theme);
+}
 
-// Dev mode toggle
-devModeToggle.addEventListener("change", () => {
-  const isEnabled = devModeToggle.checked;
-  localStorage.setItem("devMode", isEnabled);
-});
+// On page load: apply saved theme from localStorage
+const themeToggle = document.getElementById('toggle-theme');
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const savedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+setTheme(savedTheme);
 
+// Toggle logic
+themeToggle.onclick = () => {
+  const newTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
+  setTheme(newTheme);
+};
+
+// Set Dev Mode by toggling a class on <body> and saving preference
+function setDevMode(flag) {
+  if (flag) {
+    document.body.classList.add('dev');
+  } else {
+    document.body.classList.remove('dev');
+  }
+  localStorage.setItem('devMode', flag.toString());
+}
+
+// On page load: apply saved Dev Mode from localStorage
+const devModeToggle = document.getElementById('toggle-dev');
+const savedDevMode = localStorage.getItem('devMode') === 'true';
+setDevMode(savedDevMode);
+
+// Toggle logic
+devModeToggle.onclick = () => {
+  const isDev = document.body.classList.contains('dev');
+  setDevMode(!isDev);
+};
+
+// Utility function to check dev mode status
 function isDevMode() {
-  return localStorage.getItem("devMode") === "true";
+  return document.body.classList.contains('dev');
 }
