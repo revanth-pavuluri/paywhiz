@@ -9,15 +9,10 @@
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="assets/style.css" />
-
-    <!-- Preload scripts for performance -->
-    <link rel="preload" as="script" href="assets/qr-scanner.min.js" />
-    <link rel="preload" as="script" href="assets/app.js" />
-
     <title>PayWhiz</title>
   </head>
 
-  <body>
+  <body class="light">
     <div class="container">
       <h2>PayWhiz</h2>
       <div id="reader"></div>
@@ -38,11 +33,14 @@
           Facing any issues? <a onclick="window.location.reload();">Retry</a>
         </span>
       </form>
-      
+
       <footer>
-        <span id="toggle-theme" title="Theme" aria-label="Theme">🌞</span>
+        <span id="toggle-theme" title="Theme" aria-label="Theme"></span>
         <span id="toggle-dev" title="Dev Mode" aria-label="Dev Mode">🐞</span>
       </footer>
     </div>
   </body>
+  <!-- Scripts -->
+  <script src="assets/qr-scanner.min.js"></script>
+  <script src="assets/app.js"></script>
 </html>
