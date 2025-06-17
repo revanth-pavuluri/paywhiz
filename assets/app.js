@@ -21,6 +21,11 @@ function startQrScanner() {
       (qrCodeMessage) => {
         qrScanner.stop().then(() => {
           parseUpiIdFromQr(qrCodeMessage);
+          if (isDevMode()) {
+            document.getElementById(
+              "reader"
+            ).innerHTML = `<p style="color: green;">${qrCodeMessage}</p>`;
+          }
         });
       },
       (error) => {
@@ -28,9 +33,9 @@ function startQrScanner() {
       }
     )
     .catch((err) => {
-      document.getElementById("reader").innerHTML = `
-            <p style="color: red;">${err}</p>
-          `;
+      document.getElementById(
+        "reader"
+      ).innerHTML = `<p style="color: red;">${err}</p>`;
     });
 }
 
@@ -56,9 +61,57 @@ function makePayment(event) {
   upiUrl.searchParams.append("tn", note);
   upiUrl.searchParams.append("tr", transactionId);
 
+  if (isDevMode()) {
+    const triggerElement = event.target;
+    const parent = triggerElement.parentElement;
+    const a = document.createElement("a");
+    a.href = upiUrl.toString();
+    a.textContent = upiUrl.toString();
+    a.style.display = "block";
+    a.style.wordBreak = "break-all";
+    a.style.marginTop = "1rem";
+    a.target = "_blank";
+    parent.insertAdjacentElement("afterend", a);
+
+    if (!confirm("Proceed to payment ?")) {
+      return; // Prevent redirect in Dev Mode
+    }
+  }
   // Redirect to UPI payment app
   window.location.href = upiUrl.toString();
 }
 
 // Start scanning on load
 startQrScanner();
+
+const themeSwitcher = document.getElementById("themeSwitcher");
+const devModeToggle = document.getElementById("devMode");
+
+// Load stored preferences
+if (localStorage.getItem("theme")) {
+  document.body.classList.add(localStorage.getItem("theme"));
+  themeSwitcher.checked = localStorage.getItem("theme") === "dark";
+}
+
+if (localStorage.getItem("devMode") === "true") {
+  devModeToggle.checked = true;
+  console.log("Developer mode enabled");
+}
+
+// Theme switch logic
+themeSwitcher.addEventListener("change", () => {
+  const theme = themeSwitcher.checked ? "dark" : "light";
+  document.body.classList.remove("dark", "light");
+  document.body.classList.add(theme);
+  localStorage.setItem("theme", theme);
+});
+
+// Dev mode toggle
+devModeToggle.addEventListener("change", () => {
+  const isEnabled = devModeToggle.checked;
+  localStorage.setItem("devMode", isEnabled);
+});
+
+function isDevMode() {
+  return localStorage.getItem("devMode") === "true";
+}
