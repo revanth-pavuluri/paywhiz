@@ -1,1 +1,1 @@
-# scanpay
+# PayWhiz
