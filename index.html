@@ -27,6 +27,23 @@
         <label for="note">Note</label>
         <input id="note" placeholder="Lunch, groceries..." required />
 
+        <hr
+          class="hr-text"
+          data-content="Advanced ▾"
+          id="toggle-advanced"
+          style="cursor: pointer"
+        />
+
+        <div id="advanced-fields" style="display: none; margin-bottom: 1.5rem">
+          <label for="payerName">Payer Name</label>
+          <input id="payerName" placeholder="John Doe" />
+
+          <label for="merchantCode">Merchant Code</label>
+          <input id="merchantCode" placeholder="1234" />
+
+          <label for="transactionId">Transaction ID</label>
+          <input id="transactionId" placeholder="TXN000111222" />
+        </div>
         <button type="submit">Continue</button>
 
         <span class="helper-text">
